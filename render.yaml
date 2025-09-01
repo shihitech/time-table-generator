@@ -1,4 +1,5 @@
 services:
+  # Backend (Flask API)
   - type: web
     name: timetable-backend
     env: python
@@ -7,10 +8,11 @@ services:
     startCommand: gunicorn app:app
     plan: free
 
+  # Frontend (React)
   - type: web
     name: timetable-frontend
-    env: static
+    env: node
     rootDir: frontend
     buildCommand: npm install && npm run build
-    staticPublishPath: build
+    startCommand: npx serve -s build
     plan: free
