@@ -4,7 +4,6 @@ services:
     name: time-table-backend
     runtime: python
     rootDir: backend
-    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
     healthCheckPath: /
@@ -17,7 +16,6 @@ services:
     name: time-table-frontend
     runtime: static
     rootDir: frontend
-    plan: free
     buildCommand: npm ci && npm run build
     staticPublishPath: build
     # REACT_APP_API_BASE_URL after the backend gets its URL
