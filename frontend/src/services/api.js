@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://time-table-generator-vrwe.onrender.com/";
 
 export async function uploadFile(file) {
   const formData = new FormData();
