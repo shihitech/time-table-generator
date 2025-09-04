@@ -84,28 +84,29 @@ def download_excel():
 
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            # Cover Page
             cover = pd.DataFrame(
                 [[data.get("schoolName", "School"), data.get("academicYear", "2025-26")]],
                 columns=["School", "Academic Year"]
             )
             cover.to_excel(writer, sheet_name="Cover Page", index=False)
 
-            # Class-wise sheets
             for c, schedule in timetable["classTimetable"].items():
-                df = pd.DataFrame(schedule)
-                df.to_excel(writer, sheet_name=f"Class_{c}", index=False)
+                pd.DataFrame(schedule).to_excel(writer, sheet_name=f"Class_{c}", index=False)
 
-            # Teacher-wise sheets
             for t, schedule in timetable["teacherTimetable"].items():
-                df = pd.DataFrame(schedule)
-                df.to_excel(writer, sheet_name=f"Teacher_{t}", index=False)
+                pd.DataFrame(schedule).to_excel(writer, sheet_name=f"Teacher_{t}", index=False)
 
         output.seek(0)
-        return send_file(output, as_attachment=True, download_name="timetable.xlsx")
+        return send_file(
+            output,
+            as_attachment=True,
+            download_name="timetable.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 
 @app.route("/download/pdf", methods=["POST"])
@@ -117,14 +118,12 @@ def download_pdf():
         buffer = io.BytesIO()
         c = canvas.Canvas(buffer, pagesize=A4)
 
-        # Cover Page
         c.setFont("Helvetica-Bold", 18)
         c.drawCentredString(300, 800, data.get("schoolName", "School Timetable"))
         c.setFont("Helvetica", 14)
         c.drawCentredString(300, 770, f"Academic Year: {data.get('academicYear', '2025-26')}")
         c.showPage()
 
-        # Class-wise pages
         for c_name, schedule in timetable["classTimetable"].items():
             c.setFont("Helvetica-Bold", 14)
             c.drawString(50, 800, f"Class: {c_name}")
@@ -135,7 +134,6 @@ def download_pdf():
                 y -= 15
             c.showPage()
 
-        # Teacher-wise pages
         for t_name, schedule in timetable["teacherTimetable"].items():
             c.setFont("Helvetica-Bold", 14)
             c.drawString(50, 800, f"Teacher: {t_name}")
@@ -148,10 +146,16 @@ def download_pdf():
 
         c.save()
         buffer.seek(0)
-        return send_file(buffer, as_attachment=True, download_name="timetable.pdf")
+        return send_file(
+            buffer,
+            as_attachment=True,
+            download_name="timetable.pdf",
+            mimetype="application/pdf"
+        )
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 
 if __name__ == "__main__":
